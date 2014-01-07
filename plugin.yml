@@ -1,0 +1,16 @@
+name: BugFixes
+main: de.lukas.bugfixes.BugFixes
+version: 0.0.6
+
+commands:
+  sysinfos:
+    usage: /sysinfos
+  delentities:
+    usage: /delentities
+  countentities:
+    usage: /countentities
+  cleanup:
+    usage: /cleanup
+  bugfixes:
+    usage: /bugfixes
+    
