@@ -19,8 +19,10 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -85,29 +87,6 @@ public class BugFixes extends JavaPlugin implements Listener {
 				player.sendMessage("Du hast nicht die notwendigen Rechte um in diesen Gamemode zu wechseln!");
 			}
 		}
-		
-		/*if (message.equalsIgnoreCase("/gamemode") || command.getName().equalsIgnoreCase("gm")){
-			if (args.length == 0){
-				return false;
-			}
-			try {
-				int mode = Integer.parseInt(args[0]);
-				if (mode == 0 && !sender.hasPermission("bugfixes.gamemode.0")){
-					//cancel
-				} else if (mode == 1 && !sender.hasPermission("bugfixes.gamemode.1")){
-					//cancel
-				} else if (mode == 2 && !sender.hasPermission("bugfixes.gamemode.2")){
-					
-				} else if (mode == 3 && !sender.hasPermission("bugfixes.gamemode.3")){
-					
-				}
-			} catch (NumberFormatException e){
-				sender.sendMessage("Bitte einen gültigen Gamemodus angeben!");
-				return false;
-			}
-			return true;
-		}*/
-		
 		
 		if ((this.playerUseLogger == null) || (!this.playerUseLogger.equalsIgnoreCase(player.getName()))) {
 			return;
@@ -179,6 +158,7 @@ public class BugFixes extends JavaPlugin implements Listener {
 		ps.close();
 	}
 
+
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
 		Player player = event.getPlayer();
@@ -195,11 +175,11 @@ public class BugFixes extends JavaPlugin implements Listener {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		
-		if (!command.getName().equalsIgnoreCase("bugfixes")){
+
+		if (!command.getName().equalsIgnoreCase("bugfixes")) {
 			return false;
 		}
-		if (! (sender instanceof Player)) {
+		if (!(sender instanceof Player)) {
 			return true;
 		}
 		Player player = (Player) sender;
@@ -235,6 +215,21 @@ public class BugFixes extends JavaPlugin implements Listener {
 				this.playerUseLogger = null;
 				player.sendMessage(this.prefix + "Eventlogger nun deaktiviert.");
 			}
+			return true;
+		}
+
+		if (args[0].equalsIgnoreCase("listevents")) {
+			String s = "InventoryClickEvent: ";
+			for (RegisteredListener rl : InventoryClickEvent.getHandlerList().getRegisteredListeners()) {
+				s += rl.getPlugin().getName() + ", ";
+			}
+
+			s += "\nPlayerInteractEvent: ";
+			for (RegisteredListener rl : PlayerInteractEvent.getHandlerList().getRegisteredListeners()) {
+				s += rl.getPlugin().getName() + ", ";
+			}
+
+			player.sendMessage(s.split("\n"));
 			return true;
 		}
 
@@ -337,7 +332,7 @@ public class BugFixes extends JavaPlugin implements Listener {
 					return true;
 				}
 			}
-			
+
 		}
 		return false;
 	}

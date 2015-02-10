@@ -1,6 +1,6 @@
 name: BugFixes
 main: de.lukas.bugfixes.BugFixes
-version: 0.0.11a
+version: 0.0.11
 
 commands:
   sysinfos:
