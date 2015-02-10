@@ -57,8 +57,59 @@ public class BugFixes extends JavaPlugin implements Listener {
 	}
 
 	@EventHandler
-	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
-		if ((this.playerUseLogger == null) || (!this.playerUseLogger.equalsIgnoreCase(event.getPlayer().getName()))) {
+	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event){//) {
+		Player player = event.getPlayer();
+		String message = event.getMessage();
+		//System.out.println("Message: <"+message+">");
+		String[] split = message.split(" ");
+		if (split.length > 1 && (split[0].equalsIgnoreCase("/gamemode") || split[0].equalsIgnoreCase("/gm"))){
+			int mode;
+			try {
+				mode = Integer.parseInt(split[1]);
+			} catch (NumberFormatException e){
+				player.sendMessage("Bitte einen gültigen Gamemodus angeben!");
+				return;
+			}
+			boolean cancel = false;
+			if (mode == 0 && !player.hasPermission("bugfixes.gamemode.0")){
+				cancel = true;
+			} else if (mode == 1 && !player.hasPermission("bugfixes.gamemode.1")){
+				cancel = true;
+			} else if (mode == 2 && !player.hasPermission("bugfixes.gamemode.2")){
+				cancel = true;
+			} else if (mode == 3 && !player.hasPermission("bugfixes.gamemode.3")){
+				cancel = true;
+			}
+			if (cancel == true){
+				event.setCancelled(true);
+				player.sendMessage("Du hast nicht die notwendigen Rechte um in diesen Gamemode zu wechseln!");
+			}
+		}
+		
+		/*if (message.equalsIgnoreCase("/gamemode") || command.getName().equalsIgnoreCase("gm")){
+			if (args.length == 0){
+				return false;
+			}
+			try {
+				int mode = Integer.parseInt(args[0]);
+				if (mode == 0 && !sender.hasPermission("bugfixes.gamemode.0")){
+					//cancel
+				} else if (mode == 1 && !sender.hasPermission("bugfixes.gamemode.1")){
+					//cancel
+				} else if (mode == 2 && !sender.hasPermission("bugfixes.gamemode.2")){
+					
+				} else if (mode == 3 && !sender.hasPermission("bugfixes.gamemode.3")){
+					
+				}
+			} catch (NumberFormatException e){
+				sender.sendMessage("Bitte einen gültigen Gamemodus angeben!");
+				return false;
+			}
+			return true;
+		}*/
+		
+		
+		if ((this.playerUseLogger == null) || (!this.playerUseLogger.equalsIgnoreCase(player.getName()))) {
 			return;
 		}
 		File logFile = new File(getDataFolder(), "log_events.txt");
@@ -69,7 +120,7 @@ public class BugFixes extends JavaPlugin implements Listener {
 			return;
 		}
 
-		String cmd = event.getMessage().split(" ")[0].replaceFirst("/", "");
+		String cmd = message.split(" ")[0].replaceFirst("/", "");
 		PluginCommand pcmd = null;
 		for (Plugin plugin : Bukkit.getPluginManager().getPlugins()) {
 			pcmd = ((JavaPlugin) plugin).getCommand(cmd);
@@ -144,6 +195,7 @@ public class BugFixes extends JavaPlugin implements Listener {
 
 	@Override
 	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		
 		if (!command.getName().equalsIgnoreCase("bugfixes")){
 			return false;
 		}
