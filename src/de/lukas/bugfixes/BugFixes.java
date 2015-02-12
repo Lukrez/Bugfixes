@@ -9,6 +9,7 @@ import java.util.Date;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Chunk;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
@@ -19,11 +20,11 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerGameModeChangeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.plugin.Plugin;
@@ -58,34 +59,65 @@ public class BugFixes extends JavaPlugin implements Listener {
 		}
 	}
 
+
 	@EventHandler
 	public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event){//) {
+		
 		Player player = event.getPlayer();
 		String message = event.getMessage();
-		//System.out.println("Message: <"+message+">");
+		
 		String[] split = message.split(" ");
+		boolean cancel = false;
 		if (split.length > 1 && (split[0].equalsIgnoreCase("/gamemode") || split[0].equalsIgnoreCase("/gm"))){
 			int mode;
 			try {
 				mode = Integer.parseInt(split[1]);
 			} catch (NumberFormatException e){
-				player.sendMessage("Bitte einen gültigen Gamemodus angeben!");
-				return;
+				String m = split[1].toLowerCase();
+				if (m.startsWith("sp")){
+					mode = 3;
+				} else if (m.startsWith("c")){
+					mode = 1;
+				} else if (m.startsWith("a")){
+					mode = 2;
+				} else if (m.startsWith("s")){
+					mode = 0;
+				} else {
+					player.sendMessage("Bitte einen gültigen Gamemodus angeben!");
+					return;
+				}
 			}
-			boolean cancel = false;
-			if (mode == 0 && !player.hasPermission("bugfixes.gamemode.0")){
+			
+			if (mode == 0 && !player.hasPermission("bugfixes.gamemode.0")){// gms
 				cancel = true;
-			} else if (mode == 1 && !player.hasPermission("bugfixes.gamemode.1")){
+			} else if (mode == 1 && !player.hasPermission("bugfixes.gamemode.1")){ // gmc
 				cancel = true;
-			} else if (mode == 2 && !player.hasPermission("bugfixes.gamemode.2")){
+			} else if (mode == 2 && !player.hasPermission("bugfixes.gamemode.2")){ // gma
 				cancel = true;
-			} else if (mode == 3 && !player.hasPermission("bugfixes.gamemode.3")){
+			} else if (mode == 3 && !player.hasPermission("bugfixes.gamemode.3")){ // gmsp / gamemode spectator
 				cancel = true;
 			}
-			if (cancel == true){
-				event.setCancelled(true);
-				player.sendMessage("Du hast nicht die notwendigen Rechte um in diesen Gamemode zu wechseln!");
+		
+		}
+		if (split.length > 0){
+			String command = split[0];
+			if (command.equalsIgnoreCase("/gms") && !player.hasPermission("bugfixes.gamemode.0")){
+				cancel = true;
 			}
+			if (command.equalsIgnoreCase("/gmc") && !player.hasPermission("bugfixes.gamemode.1")){
+				cancel = true;
+			}
+			if (command.equalsIgnoreCase("/gma") && !player.hasPermission("bugfixes.gamemode.2")){
+				cancel = true;
+			}
+			if (command.equalsIgnoreCase("/gmsp") && !player.hasPermission("bugfixes.gamemode.3")){
+				cancel = true;
+			}
+		}
+		// Evaluate possible gamemode events
+		if (cancel == true){
+			event.setCancelled(true);
+			player.sendMessage("Du hast nicht die notwendigen Rechte um in diesen Gamemode zu wechseln!");
 		}
 		
 		if ((this.playerUseLogger == null) || (!this.playerUseLogger.equalsIgnoreCase(player.getName()))) {
